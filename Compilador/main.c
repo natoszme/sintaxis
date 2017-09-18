@@ -245,6 +245,8 @@ int main(int argc, char *argv[])
             columnaCaracterLeido = columnaMatrizPorCaracter(caracterLeido);
             estado = cambiarEstado(matrizLexicografica, estado, columnaCaracterLeido);
 
+            //comentario de prueba
+
 
         }
     }
