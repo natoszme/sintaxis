@@ -52,8 +52,8 @@ typedef struct{
 */
 int buscarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos, TOKEN *token){
     int i = 0;
-    while(strcmp("$", tablaSimbolos[i].identificador)){
-        if(!strcmp(id, tablaSimbolos[i].identificador)){
+    while(strcmp("$", tablaSimbolos[i].identificador)){ //RECORRO HASTA EL ULTIMO
+        if(!strcmp(id, tablaSimbolos[i].identificador)){ //ENCONTRE EL ID
             *token = tablaSimbolos[i].tok;
             return 1;
         }
@@ -76,6 +76,19 @@ void colocarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos){
         strcpy(tablaSimbolos[i].identificador, id);
         tablaSimbolos[i].tok = ID;
         strcpy(tablaSimbolos[++i].identificador, "$");
+    }
+}
+
+/*
+*   @function chequearTS
+*   Función que agrega un id a la TS si este no esta
+*/
+
+void chequearTS(char *s){
+    TOKEN tok;
+    if(!buscarEnLaTS(s, tablaSimbolos, &tok)){
+        colocarEnLaTS(s, tablaSimbolos);
+        //ACA DEBERIA GENERAR LA INSTRUCCION
     }
 }
 
