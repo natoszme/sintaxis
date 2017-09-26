@@ -95,32 +95,81 @@ void chequearTS(char *s){
 /*=====================================================
 =            FUNCIONES ANALISIS SINTACTICO            =
 =====================================================*/
+void expresion(EXPRESION_REGULAR *presul);
+void identificador(EXPRESION_REGULAR *presul);
 
-void objetivo(){
-    programa();
-    match(FDT);
-    terminar();
+void primaria(EXPRESION_REGULAR *presul){
+    TOKEN tok = proximoToken();
+    switch(tok){
+        case ID:
+            identificador(presul);
+            break;
+        case CONSTANTE:
+            match(CONSTANTE);
+            // *presul = procesarConstante(); RS
+            break;
+        case PARENIZQUIERDO:
+            match(PARENIZQUIERDO);
+            expresion(presul);
+            match(PARENDERECHO);
+            break;
+        default:
+            return;
+    }
 }
 
-void programa(){
-    comenzar();
-    match(INICIO);
-    listaSentencias();
-    match(FIN);
+void operadorAditivo(char *presul){
+    TOKEN tok = proximoToken();
+    if(tok == SUMA || tok == RESTA){
+        match(tok);
+        //strcpy(presul, procesarOperador()); RS
+    }else{
+        // errorSintactico(tok); RS
+    }
 }
 
-void listaSentencias(){
-    sentencia();
-    while(1){ // NO ES TAN LOCO; HASTA QUE HACE EL RETURN...
-        switch(proximoToken()){
-            case ID: 
-            case LEER: 
-            case ESCRIBIR:
-                sentencia();
-                break;
-            default:
-                return; // SI NO ES SENTENCIA; TERMINA LA FUNCION
-        }
+void expresion(EXPRESION_REGULAR *presul){
+    EXPRESION_REGULAR operandoIzquierdo, operandoDerecho;
+    char operador[TAMLEX];
+    TOKEN tok;
+    primaria(&operandoIzquierdo);
+    for (tok = proximoToken(); tok == SUMA || tok == RESTA; tok = proximoToken())
+    {
+        operadorAditivo(operador);
+        primaria(&operandoDerecho);
+        //operandoIzquierdo = genInfijo(operandoIzquierdo, operador, operandoDerecho); RS
+    }
+}
+
+void identificador(EXPRESION_REGULAR *presul){
+    match(ID);
+    //*presul = procesarID(); ACA SE LLAMA A LA RUTINA SEMANTICA
+}
+
+void listaIdentificadores(){
+    TOKEN tok;
+    EXPRESION_REGULAR regular;
+    identificador(&regular);
+    leer(regular);
+
+    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
+    {
+        match(COMA);
+        identificador(&regular);
+        leer(regular);
+    }
+}
+
+void listaExpresiones(){
+    TOKEN tok;
+    EXPRESION_REGULAR regex;
+    expresion(&regex);
+    //escribir(regex); RS
+    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
+    {
+        match(COMA);
+        expresion(&regex);
+        //escribir(regex); RS
     }
 }
 
@@ -153,84 +202,49 @@ void sentencia(){
             return;
     }
 }
-
-void listaIdentificadores(){
-    TOKEN tok;
-    EXPRESION_REGULAR regular;
-    identificador(&regular);
-    leer(regular);
-
-    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
-    {
-        match(COMA);
-        identificador(&regular);
-        leer(regular);
+void listaSentencias(){
+    sentencia();
+    while(1){ // NO ES TAN LOCO; HASTA QUE HACE EL RETURN...
+        switch(proximoToken()){
+            case ID: 
+            case LEER: 
+            case ESCRIBIR:
+                sentencia();
+                break;
+            default:
+                return; // SI NO ES SENTENCIA; TERMINA LA FUNCION
+        }
     }
 }
 
-void identificador(EXPRESION_REGULAR *presul){
-    match(ID);
-    //*presul = procesarID(); ACA SE LLAMA A LA RUTINA SEMANTICA
+void programa(){
+    comenzar();
+    match(INICIO);
+    listaSentencias();
+    match(FIN);
 }
 
-void listaExpresiones(){
-    TOKEN tok;
-    EXPRESION_REGULAR regex;
-    expresion(&regex);
-    //escribir(regex); RS
-    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
-    {
-        match(COMA);
-        expresion(&regex);
-        //escribir(regex); RS
-    }
+void objetivo(){
+    programa();
+    match(FDT);
+    terminar();
 }
 
-void expresion(EXPRESION_REGULAR *presul){
-    EXPRESION_REGULAR operandoIzquierdo, operandoDerecho;
-    char operador[TAMLEX];
-    TOKEN tok;
-    primaria(&operandoIzquierdo);
-    for (tok = proximoToken(); tok == SUMA || tok == RESTA; tok = proximoToken())
-    {
-        operadorAditivo(operador);
-        primaria(&operandoDerecho);
-        //operandoIzquierdo = genInfijo(operandoIzquierdo, operador, operandoDerecho); RS
-    }
-}
-
-void primaria(EXPRESION_REGULAR *presul){
-    TOKEN tok = proximoToken();
-    switch(tok){
-        case ID:
-            identificador(presul);
-            break;
-        case CONSTANTE:
-            match(CONSTANTE);
-            // *presul = procesarConstante(); RS
-            break;
-        case PARENIZQUIERDO:
-            match(PARENIZQUIERDO);
-            expresion(presul);
-            match(PARENDERECHO);
-            break;
-        default:
-            return;
-    }
-}
-
-void operadorAditivo(char *presul){
-    TOKEN tok = proximoToken();
-    if(tok == SUMA || tok == RESTA){
-        match(tok);
-        //strcpy(presul, procesarOperador()); RS
-    }else{
-        // errorSintactico(tok); RS
-    }
-}
 
 /*=====  FIN :: FUNCIONES ANALISIS SINTACTICO  ======*/
 
+/**
+
+    PARA HACER:
+    - PROXIMOTOKEN
+    - MATCH
+    - LEER
+    - ASIGNAR
+    - COMENZAR
+    - TERMINAR
+    
+    SIN ESTO NO COMPILARÁ!
+ */
 
 
 
