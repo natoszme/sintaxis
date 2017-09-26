@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1506383354 source:c:\users\usuario\documents\github\sintaxis\compiler que compila con gnu\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

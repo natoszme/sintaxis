@@ -7,6 +7,43 @@
 #define tamanio_matriz_columnas 13
 #define cantidad_maxima_tokens 1000000
 #define longitud_maxima_token 20
+#define TAMLEX 32+1
+
+
+/* ESTRUCTURAS PARA UTILIZAR TABLA DE SIMBOLOS */
+typedef enum{
+    INICIO, FIN, LEER, ESCRIBIR, ID, CONSTANTE, PARENIZQUIERDO, PARENDERECHO, PUNTOYCOMA, COMA, ASIGNACION, SUMA, RESTA, FDT, ERRORLEXICO
+} TOKEN;
+
+struct RegistroTablaSimbolos{
+    char identificador[TAMLEX];
+    TOKEN t; /* Del 0 al 3 Es PR, si es 4 es ID */
+};
+
+RegistroTablaSimbolos TablaSimbolos[1000] = {
+    {
+        "inicio", INICIO
+    },
+    {
+        "fin", FIN
+    },
+    {
+        "leer", LEER
+    },
+    {
+        "escribir", ESCRIBIR
+    },
+    {
+        "$", 99
+    }
+};
+
+struct EXPRESION_REGULAR{
+    TOKEN clase;
+    char nombre[TAMLEX];
+    int valor;
+};
+/* FUNCIONES */
 
 int convertirCaracterANumero(char caracter)
 {
