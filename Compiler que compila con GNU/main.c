@@ -15,12 +15,12 @@ typedef enum{
     INICIO, FIN, LEER, ESCRIBIR, ID, CONSTANTE, PARENIZQUIERDO, PARENDERECHO, PUNTOYCOMA, COMA, ASIGNACION, SUMA, RESTA, FDT, ERRORLEXICO
 } TOKEN;
 
-struct RegistroTablaSimbolos{
+typedef struct{
     char identificador[TAMLEX];
     TOKEN t; /* Del 0 al 3 Es PR, si es 4 es ID */
-};
+} RegistroTablaSimbolos;
 
-RegistroTablaSimbolos TablaSimbolos[1000] = {
+RegistroTablaSimbolos tablaSimbolos[1000] = {
     {
         "inicio", INICIO
     },
@@ -38,11 +38,11 @@ RegistroTablaSimbolos TablaSimbolos[1000] = {
     }
 };
 
-struct EXPRESION_REGULAR{
+typedef struct{
     TOKEN clase;
     char nombre[TAMLEX];
     int valor;
-};
+} EXPRESION_REGULAR;
 /* FUNCIONES */
 
 int convertirCaracterANumero(char caracter)
