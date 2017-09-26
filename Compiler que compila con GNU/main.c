@@ -168,6 +168,67 @@ void listaIdentificadores(){
     }
 }
 
+void identificador(EXPRESION_REGULAR *presul){
+    match(ID);
+    //*presul = procesarID(); ACA SE LLAMA A LA RUTINA SEMANTICA
+}
+
+void listaExpresiones(){
+    TOKEN tok;
+    EXPRESION_REGULAR regex;
+    expresion(&regex);
+    //escribir(regex); RS
+    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
+    {
+        match(COMA);
+        expresion(&regex);
+        //escribir(regex); RS
+    }
+}
+
+void expresion(EXPRESION_REGULAR *presul){
+    EXPRESION_REGULAR operandoIzquierdo, operandoDerecho;
+    char operador[TAMLEX];
+    TOKEN tok;
+    primaria(&operandoIzquierdo);
+    for (tok = proximoToken(); tok == SUMA || tok == RESTA; tok = proximoToken())
+    {
+        operadorAditivo(operador);
+        primaria(&operandoDerecho);
+        //operandoIzquierdo = genInfijo(operandoIzquierdo, operador, operandoDerecho); RS
+    }
+}
+
+void primaria(EXPRESION_REGULAR *presul){
+    TOKEN tok = proximoToken();
+    switch(tok){
+        case ID:
+            identificador(presul);
+            break;
+        case CONSTANTE:
+            match(CONSTANTE);
+            // *presul = procesarConstante(); RS
+            break;
+        case PARENIZQUIERDO:
+            match(PARENIZQUIERDO);
+            expresion(presul);
+            match(PARENDERECHO);
+            break;
+        default:
+            return;
+    }
+}
+
+void operadorAditivo(char *presul){
+    TOKEN tok = proximoToken();
+    if(tok == SUMA || tok == RESTA){
+        match(tok);
+        //strcpy(presul, procesarOperador()); RS
+    }else{
+        // errorSintactico(tok); RS
+    }
+}
+
 /*=====  FIN :: FUNCIONES ANALISIS SINTACTICO  ======*/
 
 
