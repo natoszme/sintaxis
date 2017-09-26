@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <string.h>
 
 #define tamanio_matriz_filas 15
@@ -15,220 +14,220 @@ typedef enum{
     INICIO, FIN, LEER, ESCRIBIR, ID, CONSTANTE, PARENIZQUIERDO, PARENDERECHO, PUNTOYCOMA, COMA, ASIGNACION, SUMA, RESTA, FDT, ERRORLEXICO
 } TOKEN;
 
-typedef struct{
-    char identificador[TAMLEX];
-    TOKEN tok; /* Del 0 al 3 Es PR, si es 4 es ID */
-} RegistroTablaSimbolos;
+// typedef struct{
+//     char identificador[TAMLEX];
+//     TOKEN tok; /* Del 0 al 3 Es PR, si es 4 es ID */
+// } RegistroTablaSimbolos;
 
-RegistroTablaSimbolos tablaSimbolos[1000] = {
-    {
-        "inicio", INICIO
-    },
-    {
-        "fin", FIN
-    },
-    {
-        "leer", LEER
-    },
-    {
-        "escribir", ESCRIBIR
-    },
-    {
-        "$", 99
-    }
-};
+// RegistroTablaSimbolos tablaSimbolos[1000] = {
+//     {
+//         "inicio", INICIO
+//     },
+//     {
+//         "fin", FIN
+//     },
+//     {
+//         "leer", LEER
+//     },
+//     {
+//         "escribir", ESCRIBIR
+//     },
+//     {
+//         "$", 99
+//     }
+// };
 
-typedef struct{
-    TOKEN clase;
-    char nombre[TAMLEX];
-    int valor;
-} EXPRESION_REGULAR;
+// typedef struct{
+//     TOKEN clase;
+//     char nombre[TAMLEX];
+//     int valor;
+// } EXPRESION_REGULAR;
 
-/* FUNCIONES DE LA TABLA DE SIMBOLOS */
+// /* FUNCIONES DE LA TABLA DE SIMBOLOS */
 
-/*
-*   @function buscarEnLaTS
-*   Función que busca un id en la TS y devuelve el TOKEN
-*/
-int buscarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos, TOKEN *token){
-    int i = 0;
-    while(strcmp("$", tablaSimbolos[i].identificador)){ //RECORRO HASTA EL ULTIMO
-        if(!strcmp(id, tablaSimbolos[i].identificador)){ //ENCONTRE EL ID
-            *token = tablaSimbolos[i].tok;
-            return 1;
-        }
-        i++;
-    }
-    return 0;
-}
+// /*
+// *   @function buscarEnLaTS
+// *   Función que busca un id en la TS y devuelve el TOKEN
+// */
+// int buscarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos, TOKEN *token){
+//     int i = 0;
+//     while(strcmp("$", tablaSimbolos[i].identificador)){ //RECORRO HASTA EL ULTIMO
+//         if(!strcmp(id, tablaSimbolos[i].identificador)){ //ENCONTRE EL ID
+//             *token = tablaSimbolos[i].tok;
+//             return 1;
+//         }
+//         i++;
+//     }
+//     return 0;
+// }
 
-/*
-*   @function colocarEnLaTS
-*   Función que agrega un id a la TS
-*/
+// /*
+// *   @function colocarEnLaTS
+// *   Función que agrega un id a la TS
+// */
 
-void colocarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos){
-    int i = 4;
-    while(strcmp("$", tablaSimbolos[i].identificador)){
-        i++;
-    }
-    if(i < 999){
-        strcpy(tablaSimbolos[i].identificador, id);
-        tablaSimbolos[i].tok = ID;
-        strcpy(tablaSimbolos[++i].identificador, "$");
-    }
-}
+// void colocarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos){
+//     int i = 4;
+//     while(strcmp("$", tablaSimbolos[i].identificador)){
+//         i++;
+//     }
+//     if(i < 999){
+//         strcpy(tablaSimbolos[i].identificador, id);
+//         tablaSimbolos[i].tok = ID;
+//         strcpy(tablaSimbolos[++i].identificador, "$");
+//     }
+// }
 
-/*
-*   @function chequearTS
-*   Función que agrega un id a la TS si este no esta
-*/
+// /*
+// *   @function chequearTS
+// *   Función que agrega un id a la TS si este no esta
+// */
 
-void chequearTS(char *s){
-    TOKEN tok;
-    if(!buscarEnLaTS(s, tablaSimbolos, &tok)){
-        colocarEnLaTS(s, tablaSimbolos);
-        //ACA DEBERIA GENERAR LA INSTRUCCION
-    }
-}
+// void chequearTS(char *s){
+//     TOKEN tok;
+//     if(!buscarEnLaTS(s, tablaSimbolos, &tok)){
+//         colocarEnLaTS(s, tablaSimbolos);
+//         //ACA DEBERIA GENERAR LA INSTRUCCION
+//     }
+// }
 
-/*=====================================================
-=            FUNCIONES ANALISIS SINTACTICO            =
-=====================================================*/
-void expresion(EXPRESION_REGULAR *presul);
-void identificador(EXPRESION_REGULAR *presul);
+// /*=====================================================
+// =            FUNCIONES ANALISIS SINTACTICO            =
+// =====================================================*/
+// void expresion(EXPRESION_REGULAR *presul);
+// void identificador(EXPRESION_REGULAR *presul);
 
-void primaria(EXPRESION_REGULAR *presul){
-    TOKEN tok = proximoToken();
-    switch(tok){
-        case ID:
-            identificador(presul);
-            break;
-        case CONSTANTE:
-            match(CONSTANTE);
-            // *presul = procesarConstante(); RS
-            break;
-        case PARENIZQUIERDO:
-            match(PARENIZQUIERDO);
-            expresion(presul);
-            match(PARENDERECHO);
-            break;
-        default:
-            return;
-    }
-}
+// void primaria(EXPRESION_REGULAR *presul){
+//     TOKEN tok = proximoToken();
+//     switch(tok){
+//         case ID:
+//             identificador(presul);
+//             break;
+//         case CONSTANTE:
+//             match(CONSTANTE);
+//             // *presul = procesarConstante(); RS
+//             break;
+//         case PARENIZQUIERDO:
+//             match(PARENIZQUIERDO);
+//             expresion(presul);
+//             match(PARENDERECHO);
+//             break;
+//         default:
+//             return;
+//     }
+// }
 
-void operadorAditivo(char *presul){
-    TOKEN tok = proximoToken();
-    if(tok == SUMA || tok == RESTA){
-        match(tok);
-        //strcpy(presul, procesarOperador()); RS
-    }else{
-        // errorSintactico(tok); RS
-    }
-}
+// void operadorAditivo(char *presul){
+//     TOKEN tok = proximoToken();
+//     if(tok == SUMA || tok == RESTA){
+//         match(tok);
+//         //strcpy(presul, procesarOperador()); RS
+//     }else{
+//         // errorSintactico(tok); RS
+//     }
+// }
 
-void expresion(EXPRESION_REGULAR *presul){
-    EXPRESION_REGULAR operandoIzquierdo, operandoDerecho;
-    char operador[TAMLEX];
-    TOKEN tok;
-    primaria(&operandoIzquierdo);
-    for (tok = proximoToken(); tok == SUMA || tok == RESTA; tok = proximoToken())
-    {
-        operadorAditivo(operador);
-        primaria(&operandoDerecho);
-        //operandoIzquierdo = genInfijo(operandoIzquierdo, operador, operandoDerecho); RS
-    }
-}
+// void expresion(EXPRESION_REGULAR *presul){
+//     EXPRESION_REGULAR operandoIzquierdo, operandoDerecho;
+//     char operador[TAMLEX];
+//     TOKEN tok;
+//     primaria(&operandoIzquierdo);
+//     for (tok = proximoToken(); tok == SUMA || tok == RESTA; tok = proximoToken())
+//     {
+//         operadorAditivo(operador);
+//         primaria(&operandoDerecho);
+//         //operandoIzquierdo = genInfijo(operandoIzquierdo, operador, operandoDerecho); RS
+//     }
+// }
 
-void identificador(EXPRESION_REGULAR *presul){
-    match(ID);
-    //*presul = procesarID(); ACA SE LLAMA A LA RUTINA SEMANTICA
-}
+// void identificador(EXPRESION_REGULAR *presul){
+//     match(ID);
+//     //*presul = procesarID(); ACA SE LLAMA A LA RUTINA SEMANTICA
+// }
 
-void listaIdentificadores(){
-    TOKEN tok;
-    EXPRESION_REGULAR regular;
-    identificador(&regular);
-    leer(regular);
+// void listaIdentificadores(){
+//     TOKEN tok;
+//     EXPRESION_REGULAR regular;
+//     identificador(&regular);
+//     leer(regular);
 
-    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
-    {
-        match(COMA);
-        identificador(&regular);
-        leer(regular);
-    }
-}
+//     for (tok = proximoToken(); tok == COMA; tok = proximoToken())
+//     {
+//         match(COMA);
+//         identificador(&regular);
+//         leer(regular);
+//     }
+// }
 
-void listaExpresiones(){
-    TOKEN tok;
-    EXPRESION_REGULAR regex;
-    expresion(&regex);
-    //escribir(regex); RS
-    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
-    {
-        match(COMA);
-        expresion(&regex);
-        //escribir(regex); RS
-    }
-}
+// void listaExpresiones(){
+//     TOKEN tok;
+//     EXPRESION_REGULAR regex;
+//     expresion(&regex);
+//     //escribir(regex); RS
+//     for (tok = proximoToken(); tok == COMA; tok = proximoToken())
+//     {
+//         match(COMA);
+//         expresion(&regex);
+//         //escribir(regex); RS
+//     }
+// }
 
-void sentencia(){
-    TOKEN tok = proximoToken();
-    EXPRESION_REGULAR izquierda, derecha;
-    switch(tok){
-        case ID: //ASIGNACION
-            identificador(&izquierda);
-            match(ASIGNACION);
-            expresion(&derecha);
-            asignar(izquierda, derecha);
-            match(PUNTOYCOMA);
-            break;
-        case LEER: //LECTURA DE LISTA IDS
-            match(LEER);
-            match(PARENIZQUIERDO);
-            listaIdentificadores();
-            match(PARENDERECHO);
-            match(PUNTOYCOMA);
-            break;
-        case ESCRIBIR: //ESCRITURA SENTENCIAS
-            match(ESCRIBIR);
-            match(PARENIZQUIERDO);
-            listaExpresiones();
-            match(PARENDERECHO);
-            match(PUNTOYCOMA);
-            break;
-        default: // NO RECONOCE SENTENCIA, ENTONCES FINALIZA
-            return;
-    }
-}
-void listaSentencias(){
-    sentencia();
-    while(1){ // NO ES TAN LOCO; HASTA QUE HACE EL RETURN...
-        switch(proximoToken()){
-            case ID: 
-            case LEER: 
-            case ESCRIBIR:
-                sentencia();
-                break;
-            default:
-                return; // SI NO ES SENTENCIA; TERMINA LA FUNCION
-        }
-    }
-}
+// void sentencia(){
+//     TOKEN tok = proximoToken();
+//     EXPRESION_REGULAR izquierda, derecha;
+//     switch(tok){
+//         case ID: //ASIGNACION
+//             identificador(&izquierda);
+//             match(ASIGNACION);
+//             expresion(&derecha);
+//             asignar(izquierda, derecha);
+//             match(PUNTOYCOMA);
+//             break;
+//         case LEER: //LECTURA DE LISTA IDS
+//             match(LEER);
+//             match(PARENIZQUIERDO);
+//             listaIdentificadores();
+//             match(PARENDERECHO);
+//             match(PUNTOYCOMA);
+//             break;
+//         case ESCRIBIR: //ESCRITURA SENTENCIAS
+//             match(ESCRIBIR);
+//             match(PARENIZQUIERDO);
+//             listaExpresiones();
+//             match(PARENDERECHO);
+//             match(PUNTOYCOMA);
+//             break;
+//         default: // NO RECONOCE SENTENCIA, ENTONCES FINALIZA
+//             return;
+//     }
+// }
+// void listaSentencias(){
+//     sentencia();
+//     while(1){ // NO ES TAN LOCO; HASTA QUE HACE EL RETURN...
+//         switch(proximoToken()){
+//             case ID: 
+//             case LEER: 
+//             case ESCRIBIR:
+//                 sentencia();
+//                 break;
+//             default:
+//                 return; // SI NO ES SENTENCIA; TERMINA LA FUNCION
+//         }
+//     }
+// }
 
-void programa(){
-    comenzar();
-    match(INICIO);
-    listaSentencias();
-    match(FIN);
-}
+// void programa(){
+//     comenzar();
+//     match(INICIO);
+//     listaSentencias();
+//     match(FIN);
+// }
 
-void objetivo(){
-    programa();
-    match(FDT);
-    terminar();
-}
+// void objetivo(){
+//     programa();
+//     match(FDT);
+//     terminar();
+// }
 
 
 /*=====  FIN :: FUNCIONES ANALISIS SINTACTICO  ======*/
@@ -759,3 +758,98 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+/*========================================
+=            SCANNER DE OSCAR            =
+========================================*/
+
+FILE* flujoEntrada;
+char *buffer;
+
+int estadoFinal(int estado){
+    if(estado == 0 || estado == 1 || estado == 3 || estado == 11 || estado == 14)
+        return 0;
+    else
+        return 1;
+}
+
+int columna(int caracter){
+    if(isalpha(caracter)) return 0;
+    if(isdigit(caracter)) return 1;
+    if(caracter == '+') return 2;
+    if(caracter == '-') return 3;
+    if(caracter == '(') return 4;
+    if(caracter == ')') return 5;
+    if(caracter == ',') return 6;
+    if(caracter == ';') return 7;
+    if(caracter == ':') return 8;
+    if(caracter == '=') return 9;
+    if(caracter == EOF) return 10;
+    if(isspace(caracter)) return 11;
+    return 12;
+}
+
+TOKEN scanner(){
+    int matrizLexicografica[tamanio_matriz_filas][tamanio_matriz_columnas] = {
+              //L  D  +  -  (  )  ,  ;  :  = fdt sp otro
+       /* 0 */ {1, 3, 5, 6, 7, 8, 9, 10,11,14,13,0, 14},
+       /* 1 */ {1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
+       /* 2 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 3 */ {4, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+       /* 4 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 5 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 6 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 7 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 8 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 9 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 10*/ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 11*/ {14,14,14,14,14,14,14,14,14,12,14,14,14},
+       /* 12*/ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 13*/ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 14*/ {14,14,14,14,14,14,14,14,14,14,14,14,14}
+    };
+
+    int caracter;
+    int columnaActual;
+    int estado = 0;
+    int i = 0;
+    do{
+        caracter = fgetc(flujoEntrada);
+        columnaActual = columna(caracter);
+        estado = matrizLexicografica[estado][columnaActual];
+        if(columnaActual != 11){ // SI NO ES ESPACIO
+            buffer[i] = caracter;
+            i++;
+        }
+    }while(!estadoFinal(estado) && !(estado == 14));
+    buffer[i] = '\0'; //FIN CADNA
+
+    switch(estado){
+        case 2:
+            if(columnaActual != 11){
+                ungetc(caracter, flujoEntrada); // SI EL CARACTER ESPUREO NO ES BLANCO, VA AL FLUJO
+                buffer[i-1] = '\0';
+            }
+            return ID;
+        case 4:
+            if(columnaActual != 11){
+                ungetc(caracter, flujoEntrada);
+                buffer[i-1] = '\0';
+            }
+            return CONSTANTE;
+        case 5: return SUMA;
+        case 6: return RESTA;
+        case 7: return PARENIZQUIERDO;
+        case 8: return PARENDERECHO;
+        case 9: return COMA;
+        case 10: return PUNTOYCOMA;
+        case 12: return ASIGNACION;
+        case 13: return FDT;
+        case 14: return ERRORLEXICO;
+    }
+    return 0;
+
+}
+
+
+/*=====  End of SCANNER DE OSCAR  ======*/
