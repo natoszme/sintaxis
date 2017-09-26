@@ -92,6 +92,86 @@ void chequearTS(char *s){
     }
 }
 
+/*=====================================================
+=            FUNCIONES ANALISIS SINTACTICO            =
+=====================================================*/
+
+void objetivo(){
+    programa();
+    match(FDT);
+    terminar();
+}
+
+void programa(){
+    comenzar();
+    match(INICIO);
+    listaSentencias();
+    match(FIN);
+}
+
+void listaSentencias(){
+    sentencia();
+    while(1){ // NO ES TAN LOCO; HASTA QUE HACE EL RETURN...
+        switch(proximoToken()){
+            case ID: 
+            case LEER: 
+            case ESCRIBIR:
+                sentencia();
+                break;
+            default:
+                return; // SI NO ES SENTENCIA; TERMINA LA FUNCION
+        }
+    }
+}
+
+void sentencia(){
+    TOKEN tok = proximoToken();
+    EXPRESION_REGULAR izquierda, derecha;
+    switch(tok){
+        case ID: //ASIGNACION
+            identificador(&izquierda);
+            match(ASIGNACION);
+            expresion(&derecha);
+            asignar(izquierda, derecha);
+            match(PUNTOYCOMA);
+            break;
+        case LEER: //LECTURA DE LISTA IDS
+            match(LEER);
+            match(PARENIZQUIERDO);
+            listaIdentificadores();
+            match(PARENDERECHO);
+            match(PUNTOYCOMA);
+            break;
+        case ESCRIBIR: //ESCRITURA SENTENCIAS
+            match(ESCRIBIR);
+            match(PARENIZQUIERDO);
+            listaExpresiones();
+            match(PARENDERECHO);
+            match(PUNTOYCOMA);
+            break;
+        default: // NO RECONOCE SENTENCIA, ENTONCES FINALIZA
+            return;
+    }
+}
+
+void listaIdentificadores(){
+    TOKEN tok;
+    EXPRESION_REGULAR regular;
+    identificador(&regular);
+    leer(regular);
+
+    for (tok = proximoToken(); tok == COMA; tok = proximoToken())
+    {
+        match(COMA);
+        identificador(&regular);
+        leer(regular);
+    }
+}
+
+/*=====  FIN :: FUNCIONES ANALISIS SINTACTICO  ======*/
+
+
+
 
 /* FUNCIONES */
 
