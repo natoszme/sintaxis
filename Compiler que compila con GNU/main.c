@@ -17,7 +17,7 @@ typedef enum{
 
 typedef struct{
     char identificador[TAMLEX];
-    TOKEN t; /* Del 0 al 3 Es PR, si es 4 es ID */
+    TOKEN tok; /* Del 0 al 3 Es PR, si es 4 es ID */
 } RegistroTablaSimbolos;
 
 RegistroTablaSimbolos tablaSimbolos[1000] = {
@@ -43,6 +43,43 @@ typedef struct{
     char nombre[TAMLEX];
     int valor;
 } EXPRESION_REGULAR;
+
+/* FUNCIONES DE LA TABLA DE SIMBOLOS */
+
+/*
+*   @function buscarEnLaTS
+*   Función que busca un id en la TS y devuelve el TOKEN
+*/
+int buscarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos, TOKEN *token){
+    int i = 0;
+    while(strcmp("$", tablaSimbolos[i].identificador)){
+        if(!strcmp(id, tablaSimbolos[i].identificador)){
+            *token = tablaSimbolos[i].tok;
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+/*
+*   @function colocarEnLaTS
+*   Función que agrega un id a la TS
+*/
+
+void colocarEnLaTS(char *id, RegistroTablaSimbolos *tablaSimbolos){
+    int i = 4;
+    while(strcmp("$", tablaSimbolos[i].identificador)){
+        i++;
+    }
+    if(i < 999){
+        strcpy(tablaSimbolos[i].identificador, id);
+        tablaSimbolos[i].tok = ID;
+        strcpy(tablaSimbolos[++i].identificador, "$");
+    }
+}
+
+
 /* FUNCIONES */
 
 int convertirCaracterANumero(char caracter)
