@@ -3,11 +3,18 @@
 
 #include <string.h>
 
-#define tamanio_matriz_filas 15
+#define tamanio_matriz_filas 16
 #define tamanio_matriz_columnas 13
 #define cantidad_maxima_tokens 1000000
 #define longitud_maxima_token 20
 
+typedef enum{
+    INICIO, FIN, LEER, ESCRIBIR, ID, CONSTANTE, PARENIZQUIERDO, PARENDERECHO, PUNTOYCOMA, COMA, ASIGNACION, SUMA, RESTA, FDT, ERRORLEXICO
+} TOKEN;
+
+/*=====================================================
+=            FUNCIONES VARIAS                         =
+=====================================================*/
 int convertirCaracterANumero(char caracter)
 {
     int valorDecimal = caracter - '0';
@@ -126,7 +133,17 @@ int esFinDeTexto(char caracter)
 
 int esSaltoLinea(char caracter)
 {
-    if (caracter == '\n')
+    if (caracter == '\r\n' || caracter == '\n')
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+int esTab(char caracter)
+{
+    if (caracter == '\t')
     {
         return 1;
     }
@@ -330,8 +347,7 @@ int reconocioFDT(int estado)
 
 int reconocioOtro(int estado)
 {
-    //contemplado el caso del ':' sin el '='
-    if (estado == 14 || estado == 11)
+    if (estado == 14)
     {
         return 1;
     }
@@ -339,21 +355,9 @@ int reconocioOtro(int estado)
     return 0;
 }
 
-
-/*void recorrerTokens(char array_tokens[cantidad_maxima_tokens][longitud_maxima_token])
-{
-    int i = 0;
-    for ( i ; i < cantidad_maxima_tokens ; i++ )
-    {
-        char *token_actual = array_tokens[i];
-
-        //REVISAR
-        if (token_actual != "")
-        {
-            printf("%s", token_actual);
-        }
-    }
-}*/
+/*=====================================================
+=            FIN::FUNCIONES VARIAS                         =
+=====================================================*/
 
 void erroresArchivo(int numeroError)
 {
@@ -369,7 +373,36 @@ void erroresArchivo(int numeroError)
 	}
 }
 
+FILE* flujoEntrada;
+
 int main(int argc, char *argv[])
+{
+    char *rutaDelFlujo = argv[1];
+
+    if(argc != 2)
+    {
+		erroresArchivo(0);
+		return 0;
+	}
+
+	if( flujoEntrada = fopen(rutaDelFlujo, "r") )
+    {
+
+        fclose(flujoEntrada);
+    }
+    else
+    {
+        erroresArchivo(1);
+        return 0;
+    }
+
+    return 0;
+}
+
+/*=====================================================
+=            DEVUELVE EL TOKEN                         =
+=====================================================*/
+TOKEN token()
 {
     int matrizLexicografica[tamanio_matriz_filas][tamanio_matriz_columnas] = {
               //L  D  +  -  (  )  ,  ;  :  = fdt sp otro
@@ -384,136 +417,128 @@ int main(int argc, char *argv[])
        /* 8 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
        /* 9 */ {14,14,14,14,14,14,14,14,14,14,14,14,14},
        /* 10*/ {14,14,14,14,14,14,14,14,14,14,14,14,14},
-       /* 11*/ {14,14,14,14,14,14,14,14,14,12,14,14,14},
+       /* 11*/ {15,15,15,15,15,15,15,15,15,12,15,15,15},
        /* 12*/ {14,14,14,14,14,14,14,14,14,14,14,14,14},
        /* 13*/ {14,14,14,14,14,14,14,14,14,14,14,14,14},
-       /* 14*/ {14,14,14,14,14,14,14,14,14,14,14,14,14}
+       /* 14*/ {14,14,14,14,14,14,14,14,14,14,14,14,14},
+       /* 15*/ {15,15,15,15,15,15,15,15,15,15,15,15,15}
     };
 
     int estado = 0;
-    char *rutaDelFlujo = argv[1];
-    FILE* flujoEntrada;
 
-    if(argc != 2)
+    char caracterLeido;
+    int columnaCaracterLeido;
+    //const char array_tokens[cantidad_maxima_tokens][longitud_maxima_token];
+    int posicion_token = 0;
+    char caracterControlUngetC;
+
+    //char *stringTokens;
+
+    //chequear qué pasa con el espacio y los saltos de linea
+    while( (caracterLeido = getc(flujoEntrada)))
     {
-		erroresArchivo(0);
-		return 0;
-	}
-
-	if( flujoEntrada = fopen(rutaDelFlujo, "r") )
-    {
-        char caracterLeido;
-        int columnaCaracterLeido;
-        //const char array_tokens[cantidad_maxima_tokens][longitud_maxima_token];
-        int posicion_token = 0;
-
-        //char *stringTokens;
-
-        //chequear qué pasa con el espacio y los saltos de linea
-        while( (caracterLeido = getc(flujoEntrada)) && (!esEspacio(caracterLeido)) && (!esSaltoLinea(caracterLeido)) )
+        if((!esEspacio(caracterLeido)) && (!esSaltoLinea(caracterLeido)) && (!esTab(caracterLeido)))
         {
             printf("Caracter actual: %c\n", caracterLeido);
 
             columnaCaracterLeido = columnaMatrizPorCaracter(caracterLeido);
 
-            printf("Columna caracter actual: %d\n", columnaCaracterLeido);
+            //printf("Columna caracter actual: %d\n", columnaCaracterLeido);
 
             estado = cambiarEstado(matrizLexicografica, estado, columnaCaracterLeido);
 
-            printf("Nuevo estado: %d\n", estado);
+            //printf("Nuevo estado: %d\n", estado);
 
             if (reconocioIdentificador(estado, caracterLeido, flujoEntrada))
             {
-                //se reconocio un identificador
-                //array_tokens[posicion_token] = "IDENTIFICADOR";
-
                 printf("IDENTIFICADOR\n");
-
-                estado = 0;
+                return ID;
             }
 
             if (reconocioConstante(estado, caracterLeido, flujoEntrada))
             {
-                //se reconocio una constante
-                //array_tokens[posicion_token] = "CONSTANTE";
-
                 printf("CONSTANTE\n");
-
-                estado = 0;
+                return CONSTANTE;
             }
 
             if (reconocioPuntoYComa(estado))
             {
-                //se reconocio el punto y coma
-                //array_tokens[posicion_token] = "PUNTOYCOMA";
-
                 printf("PUNTOYCOMA\n");
-
-                estado = 0;
+                return PUNTOYCOMA;
             }
 
             if (reconocioSignoMas(estado))
             {
                 printf("OPERADORMAS\n");
-                estado = 0;
+                return SUMA;
             }
 
             if (reconocioSignoMenos(estado))
             {
                 printf("OPERADORMENOS\n");
-                estado = 0;
+                return RESTA;
             }
 
             if (reconocioParentesisAbre(estado))
             {
                 printf("PARENTESISABRE\n");
-                estado = 0;
+                return PARENIZQUIERDO;
             }
 
             if (reconocioParentesisCierra(estado))
             {
                 printf("PARENTESISCIERRA\n");
-                estado = 0;
+                return PARENDERECHO;
             }
 
             if (reconocioComa(estado))
             {
                 printf("COMA\n");
-                estado = 0;
+                return COMA;
             }
 
             if (reconocioOperadorAsignacion(estado))
             {
                 printf("OPERADORASIGNACION\n");
-                estado = 0;
+                return ASIGNACION;
+            }
+
+            if (estado == 15)
+            {
+                printf("ERRORLEXICOGRAFICO\n");
+
+                caracterControlUngetC = ungetc(caracterLeido, flujoEntrada);
+
+                if (caracterControlUngetC == caracterLeido)
+                {
+                    //por como funciona el ungetc, si entra a este if, el caracter se pudo devolver bien al flujo
+                    return ERRORLEXICO;
+                }
+                else
+                {
+                    //no pudo devolver el caracter espúreo al flujo
+                    printf("Error: no se pudo devolver uno de los caracteres espúreos al flujo");
+                    exit(0);
+                }
             }
 
             if (reconocioOtro(estado))
             {
                 printf("ERRORLEXICOGRAFICO\n");
-                estado = 0;
+                return ERRORLEXICO;
             }
 
             //chequear que pasa con este return cuando se quiera usar el scanner para la funcion match!
             if (reconocioFDT(estado))
             {
                 printf("FDT\n");
-
-                return 0;
+                return FDT;
             }
 
             posicion_token++;
         }
-
-        //recorrerTokens(array_tokens);
-
-        fclose(flujoEntrada);
     }
-    else
-    {
-        erroresArchivo(1);
-        return 0;
-    }
-
-    return 0;
 }
+/*=====================================================
+=           FIN::DEVUELVE EL TOKEN                    =
+=====================================================*/
