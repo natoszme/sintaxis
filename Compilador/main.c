@@ -446,7 +446,7 @@ TOKEN token()
     {
 
 
-        if(!((esEspacio(caracterLeido)) || (esSaltoLinea(caracterLeido)) || (esTab(caracterLeido))))
+        if(!((esEspacio(caracterLeido)) || (esSaltoLinea(caracterLeido)) || (esTab(caracterLeido)) || esFinDeTexto(caracterLeido)))
         {
             string_token[posicion_token] = caracterLeido;
             posicion_token++;
@@ -463,8 +463,8 @@ TOKEN token()
 
         if (reconocioIdentificador(estado, caracterLeido, flujoEntrada))
         {
-            TOKEN* identificador;
-            if(buscarEnLaTS(string_token,tablaSimbolos,identificador))
+            TOKEN identificador;
+            if(buscarEnLaTS(string_token,tablaSimbolos,&identificador))
             {
                  printf("PALABRA RESERVADA\n");
                  return identificador;
@@ -591,14 +591,14 @@ void identificador(EXPRESION_REGULAR *presul);
 void primaria(EXPRESION_REGULAR *presul){
     TOKEN tok = token();
     switch(tok){
-        case ID:
+      /*  case ID:
             match(ID);
             break;
         case CONSTANTE:
-            match(CONSTANTE);
-            break;
+            match(PUNTOYCOMA);
+            break;*/
         case PARENIZQUIERDO:
-            match(PARENIZQUIERDO);
+          //  match(PARENIZQUIERDO);
             expresion(presul);
             match(PARENDERECHO);
             break;
@@ -668,7 +668,7 @@ void sentencia(){
     switch(tok){
         case ID: //ASIGNACION
             match(ASIGNACION);
-            expresion(&derecha);
+            expresion(&derecha); //tenemos problemas en la funcion expresion, esto se debe a que se utiliza muchas veces el match y el puntero que apunta al archivo se va moviendo.
             match(PUNTOYCOMA);
             break;
         case LEER: //LECTURA DE LISTA IDS
