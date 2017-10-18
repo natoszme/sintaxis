@@ -389,6 +389,7 @@ int reconocioOtro(int estado)
 
 void errorSintactico(){
     printf("Error Sintactico \n");
+    exit(1);
 }
 
 void erroresArchivo(int numeroError)
