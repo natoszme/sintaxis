@@ -463,8 +463,15 @@ TOKEN token()
 
         if (reconocioIdentificador(estado, caracterLeido, flujoEntrada))
         {
+            int i = 0;
             TOKEN identificador;
             string_token[posicion_token] = '\0';
+            while(string_token[i])
+            {
+                string_token[i] = tolower(string_token[i]);
+                i++;
+            }
+
             if(buscarEnLaTS(string_token,tablaSimbolos,&identificador))
             {
                  printf("PALABRA RESERVADA\n");

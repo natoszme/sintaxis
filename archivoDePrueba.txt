@@ -1,3 +1,6 @@
 inicio
 	a:=5+4;
+	ESCRIBIR(a);
+	b c := 40;
+
 fin
