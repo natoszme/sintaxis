@@ -36,6 +36,10 @@ RegistroTablaSimbolos tablaSimbolos[1000] = {
     }
 };
 
+int flagToken = 0;
+FILE* flujoEntrada;
+TOKEN tokenActual;
+
 /*=====================================================
 =            FUNCIONES VARIAS                         =
 =====================================================*/
@@ -401,7 +405,6 @@ void erroresArchivo(int numeroError)
 	}
 }
 
-FILE* flujoEntrada;
 
 
 
@@ -434,19 +437,16 @@ TOKEN token()
 
     char caracterLeido;
     int columnaCaracterLeido;
-    //const char array_tokens[cantidad_maxima_tokens][longitud_maxima_token];
     int posicion_token = 0;
     char caracterControlUngetC;
     char string_token[TAMLEX];
-
-    //char *stringTokens;
 
     //chequear qué pasa con el espacio y los saltos de linea
     while( (caracterLeido = getc(flujoEntrada)))
     {
 
 
-        if(!((esEspacio(caracterLeido)) || (esSaltoLinea(caracterLeido)) || (esTab(caracterLeido)) || esFinDeTexto(caracterLeido)))
+        if(esLetra(caracterLeido) || esNumero(caracterLeido))
         {
             string_token[posicion_token] = caracterLeido;
             posicion_token++;
@@ -464,6 +464,7 @@ TOKEN token()
         if (reconocioIdentificador(estado, caracterLeido, flujoEntrada))
         {
             TOKEN identificador;
+            string_token[posicion_token] = '\0';
             if(buscarEnLaTS(string_token,tablaSimbolos,&identificador))
             {
                  printf("PALABRA RESERVADA\n");
@@ -562,11 +563,24 @@ TOKEN token()
 /*=====================================================
 =            FUNCIONES ANALISIS SINTACTICO            =
 =====================================================*/
+TOKEN ProximoToken()
+{
+    if (!flagToken)
+    {
+        tokenActual = token();
+    }
+    flagToken = 1;
+
+    return tokenActual;
+}
+
 void match(TOKEN t){
-    if(!(t == token())){
+    if(!(t == ProximoToken())){
         errorSintactico();
     }
+    flagToken = 0;
 }
+
 typedef struct{
     TOKEN clase;
     char nombre[TAMLEX];
@@ -589,16 +603,16 @@ void expresion(EXPRESION_REGULAR *presul);
 void identificador(EXPRESION_REGULAR *presul);
 
 void primaria(EXPRESION_REGULAR *presul){
-    TOKEN tok = token();
+    TOKEN tok = ProximoToken();
     switch(tok){
-      /*  case ID:
+        case ID:
             match(ID);
             break;
         case CONSTANTE:
-            match(PUNTOYCOMA);
-            break;*/
+            match(CONSTANTE);
+            break;
         case PARENIZQUIERDO:
-          //  match(PARENIZQUIERDO);
+            match(PARENIZQUIERDO);
             expresion(presul);
             match(PARENDERECHO);
             break;
@@ -608,7 +622,7 @@ void primaria(EXPRESION_REGULAR *presul){
 }
 
 void operadorAditivo(char *presul){
-    TOKEN tok = token();
+    TOKEN tok = ProximoToken();
     if(tok == SUMA || tok == RESTA){
         match(tok);
         //strcpy(presul, procesarOperador()); RS
@@ -622,7 +636,7 @@ void expresion(EXPRESION_REGULAR *presul){
     char operador[TAMLEX];
     TOKEN tok;
     primaria(&operandoIzquierdo);
-    for (tok = token(); tok == SUMA || tok == RESTA; tok = token())
+    for (tok = ProximoToken(); tok == SUMA || tok == RESTA; tok = ProximoToken())
     {
         operadorAditivo(operador);
         primaria(&operandoDerecho);
@@ -641,7 +655,7 @@ void listaIdentificadores(){
     identificador(&regular);
     //leer(regular);
 
-    for (tok = token(); tok == COMA; tok = token())
+    for (tok = ProximoToken(); tok == COMA; tok = ProximoToken())
     {
         match(COMA);
         identificador(&regular);
@@ -654,7 +668,7 @@ void listaExpresiones(){
     EXPRESION_REGULAR regex;
     expresion(&regex);
     //escribir(regex); RS
-    for (tok = token(); tok == COMA; tok = token())
+    for (tok = ProximoToken(); tok == COMA; tok = ProximoToken())
     {
         match(COMA);
         expresion(&regex);
@@ -663,21 +677,24 @@ void listaExpresiones(){
 }
 
 void sentencia(){
-    TOKEN tok = token();
+    TOKEN tok = ProximoToken();
     EXPRESION_REGULAR izquierda, derecha;
     switch(tok){
         case ID: //ASIGNACION
+            match(ID);
             match(ASIGNACION);
             expresion(&derecha); //tenemos problemas en la funcion expresion, esto se debe a que se utiliza muchas veces el match y el puntero que apunta al archivo se va moviendo.
             match(PUNTOYCOMA);
             break;
         case LEER: //LECTURA DE LISTA IDS
+            match(LEER);
             match(PARENIZQUIERDO);
             listaIdentificadores();
             match(PARENDERECHO);
             match(PUNTOYCOMA);
             break;
         case ESCRIBIR: //ESCRITURA SENTENCIAS
+            match(ESCRIBIR);
             match(PARENIZQUIERDO);
             listaExpresiones();
             match(PARENDERECHO);
@@ -690,7 +707,7 @@ void sentencia(){
 void listaSentencias(){
     sentencia();
     while(1){ // NO ES TAN LOCO; HASTA QUE HACE EL RETURN...
-        switch(token()){
+        switch(ProximoToken()){
             case ID:
             case LEER:
             case ESCRIBIR:
